@@ -13,10 +13,6 @@ java {
 	sourceCompatibility = '17'
 }
 
-test {
-	useJUnitPlatform()
-}
-
 repositories {
 	mavenCentral()
 }
@@ -24,7 +20,7 @@ repositories {
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb-reactive'
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
-	implementation 'org.projectlombok:lombok:1.18.20'
+	compileOnly 'org.projectlombok:lombok:1.18.20'
 
 	testImplementation 'io.projectreactor:reactor-test'
 

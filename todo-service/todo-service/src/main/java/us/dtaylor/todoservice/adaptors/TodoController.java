@@ -44,10 +44,11 @@ public class TodoController {
                 .map(ResponseEntity::ok);
     }
 
-    @PutMapping
-    public Mono<ResponseEntity<Todo>> updateById(String id, Todo todo) {
+    @PutMapping("/{id}")
+    public Mono<ResponseEntity<Todo>> updateById(@PathVariable String id, @RequestBody Todo todo) {
         return todoService.updateTodo(id, todo)
-                .map(ResponseEntity::ok);
+                .map(ResponseEntity::ok)
+                .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")

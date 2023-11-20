@@ -9,7 +9,7 @@ import spock.lang.Specification
 import spock.lang.Subject
 import us.dtaylor.todoservice.domain.Todo
 
-@SpringBootTest()
+@SpringBootTest
 class TodoServiceImplSpec extends Specification {
 
     @Subject
