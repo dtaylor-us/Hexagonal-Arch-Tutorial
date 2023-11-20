@@ -1,4 +1,4 @@
-package us.dtaylor.todoservice.adaptors
+package us.dtaylor.todoservice.adapters
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest

@@ -18,7 +18,7 @@ class TodoServiceImplSpec extends Specification {
     TodoRepository todoRepository = Mock()
 
     def setup() {
-        todoService = new TodoServiceImpl(todoRepository)
+        todoService = new TodoServiceImpl(todoRepository, userClient)
     }
 
     def "create todo item"() {

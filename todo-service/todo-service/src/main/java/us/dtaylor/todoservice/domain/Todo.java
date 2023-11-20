@@ -15,11 +15,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Todo {
     @Id
     private String id;
-    @Setter
     private String title;
-    @Setter
     private String description;
-    @Setter
     private boolean completed;
+    private String userId;
 
 }

@@ -1,4 +1,4 @@
-package us.dtaylor.user.domain;
+package us.dtaylor.todoservice.domain;
 
 import lombok.Getter;
 import lombok.Setter;

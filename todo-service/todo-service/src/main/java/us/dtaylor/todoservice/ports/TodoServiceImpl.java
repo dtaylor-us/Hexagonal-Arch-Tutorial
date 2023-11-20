@@ -5,19 +5,27 @@ import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import us.dtaylor.todoservice.adapters.UserClient;
 import us.dtaylor.todoservice.domain.Todo;
 
 @Service
 public class TodoServiceImpl implements TodoService {
     private final TodoRepository repository;
+    private final UserClient userClient;
 
     @Autowired
-    public TodoServiceImpl(TodoRepository repository) {
+    public TodoServiceImpl(TodoRepository repository, UserClient userClient) {
         this.repository = repository;
+        this.userClient = userClient;
     }
 
     @Override
-    public Mono<Todo> createTodo(Todo todo) {
+    public Mono<Todo> createTodo(String userId, Todo todo) {
+        return userClient.getUserById(userId)
+                .flatMap(user -> {
+                    todo.setUserId(user.getId());
+                    return repository.save(todo);
+                });
         return repository.save(todo);
     }
 
