@@ -5,7 +5,8 @@ import reactor.core.publisher.Mono;
 import us.dtaylor.todoservice.domain.Todo;
 
 public interface TodoService {
-    Mono<Todo> createTodo(Todo todo);
+    Mono<Todo> createTodo(String userId, Todo todo);
+    Flux<Todo> getAllTodosByUserId(String userId);
     Flux<Todo> getAllTodos();
     Mono<Todo> getTodoById(String id);
     Mono<Todo> updateTodo(String id, Todo todo);

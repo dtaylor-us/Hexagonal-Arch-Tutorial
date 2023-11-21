@@ -1,6 +1,6 @@
 package us.dtaylor.todoservice.adapters;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
@@ -10,24 +10,25 @@ import us.dtaylor.todoservice.domain.User;
 @Component
 public class UserClient {
 
-    private final WebClient webClient;
+    private final WebClient userWebClient;
 
-    public UserClient(@Value("${user.service.url}") String userServiceUrl) {
-        this.webClient = WebClient.builder()
-                .baseUrl(userServiceUrl)
-                .build();
+    @Autowired
+    public UserClient(WebClient userWebClient) {
+        this.userWebClient = userWebClient;
     }
 
+
     public Mono<User> getUserById(String userId) {
-        return webClient.get()
+        return userWebClient.get()
                 .uri("/api/v1/users/{id}", userId)
                 .retrieve()
                 .bodyToMono(User.class);
     }
 
+
     // Other methods like updateUser, deleteUser etc.
     public Mono<User> updateUser(String userId, User user) {
-        return webClient.put()
+        return userWebClient.put()
                 .uri("/api/v1/users/{id}", userId)
                 .body(Mono.just(user), User.class)
                 .retrieve()
@@ -35,14 +36,14 @@ public class UserClient {
     }
 
     public Mono<Void> deleteUser(String userId) {
-        return webClient.delete()
+        return userWebClient.delete()
                 .uri("/api/v1/users/{id}", userId)
                 .retrieve()
                 .bodyToMono(Void.class);
     }
 
     public Flux<User> getAllUsers() {
-        return webClient.get()
+        return userWebClient.get()
                 .uri("/api/v1/users")
                 .retrieve()
                 .bodyToFlux(User.class);

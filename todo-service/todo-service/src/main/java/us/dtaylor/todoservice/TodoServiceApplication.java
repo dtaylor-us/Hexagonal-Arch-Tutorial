@@ -23,8 +23,8 @@ public class TodoServiceApplication {
             if (todoRepository.count().block() == 0L) {
                 todoRepository.deleteAll().block();
                 // Seed the database
-                todoRepository.save(new Todo("1", "Task 1", "Description 1", false)).block();
-                todoRepository.save(new Todo("2", "Task 2", "Description 2", true)).block();
+                todoRepository.save(new Todo("1", "Task 1", "Description 1", false, "1")).block();
+                todoRepository.save(new Todo("2", "Task 2", "Description 2", true, "1")).block();
                 // Add more todos as needed
             }
         };

@@ -26,7 +26,11 @@ public class TodoServiceImpl implements TodoService {
                     todo.setUserId(user.getId());
                     return repository.save(todo);
                 });
-        return repository.save(todo);
+    }
+
+    @Override
+    public Flux<Todo> getAllTodosByUserId(String userId) {
+        return repository.findAllByUserId(userId);
     }
 
     @Override

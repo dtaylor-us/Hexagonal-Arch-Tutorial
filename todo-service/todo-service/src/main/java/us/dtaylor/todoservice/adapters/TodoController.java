@@ -26,9 +26,9 @@ public class TodoController {
         this.todoService = todoService;
     }
 
-    @PostMapping
-    public Mono<ResponseEntity<Todo>> createTodo(@RequestBody Todo todo) {
-        return todoService.createTodo(todo)
+    @PostMapping("/{userId}")
+    public Mono<ResponseEntity<Todo>> createTodo(@PathVariable String userId, @RequestBody Todo todo) {
+        return todoService.createTodo(userId, todo)
                 .map(ResponseEntity::ok);
     }
 
@@ -42,6 +42,12 @@ public class TodoController {
     public Mono<ResponseEntity<Todo>> findById(@PathVariable String id) {
         return todoService.getTodoById(id)
                 .map(ResponseEntity::ok);
+    }
+
+    @GetMapping("/user/{userId}")
+    public Mono<ResponseEntity<Flux<Todo>>> getAllTodosByUserId(@PathVariable String userId) {
+        Flux<Todo> todoFlux = todoService.getAllTodosByUserId(userId);
+        return Mono.just(ResponseEntity.ok().body(todoFlux));
     }
 
     @PutMapping("/{id}")
