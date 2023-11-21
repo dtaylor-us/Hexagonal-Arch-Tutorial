@@ -7,6 +7,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import us.dtaylor.todoservice.adapters.UserClient;
 import us.dtaylor.todoservice.domain.Todo;
+import us.dtaylor.todoservice.exceptions.UserNotFoundException;
 
 @Service
 public class TodoServiceImpl implements TodoService {
@@ -25,8 +26,11 @@ public class TodoServiceImpl implements TodoService {
                 .flatMap(user -> {
                     todo.setUserId(user.getId());
                     return repository.save(todo);
-                });
+                })
+                .switchIfEmpty(Mono.error(new UserNotFoundException("User not found for id: " + userId)));
+
     }
+
 
     @Override
     public Flux<Todo> getAllTodosByUserId(String userId) {

@@ -1,16 +1,18 @@
 package us.dtaylor.todoservice.adapters;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import us.dtaylor.todoservice.domain.User;
-import us.dtaylor.todoservice.exceptions.UserClientException;
+import us.dtaylor.todoservice.exceptions.ClientException;
+import us.dtaylor.todoservice.exceptions.ClientTimeOutException;
 
+import javax.naming.ServiceUnavailableException;
 import java.time.Duration;
+import java.util.concurrent.TimeoutException;
 
 @Component
 public class UserClient {
@@ -42,9 +44,9 @@ public class UserClient {
     private <T> Mono<T> makeRequest(WebClient.RequestHeadersSpec<?> request, Class<T> bodyType) {
         return request
                 .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError, response -> Mono.error(new UserClientException(ERROR_OCCURRED_RETRIEVING_USER)))
+                .onStatus(HttpStatusCode::is4xxClientError, response -> Mono.error(new ClientException(ERROR_OCCURRED_RETRIEVING_USER)))
                 .bodyToMono(bodyType)
                 .timeout(Duration.ofSeconds(3))
-                .onErrorResume(e -> Mono.error(new UserClientException("Service unavailable")));
+                .onErrorMap(TimeoutException.class, e -> new ClientTimeOutException("Service unavailable"));
     }
 }
