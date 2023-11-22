@@ -1,19 +1,35 @@
 version: '3.8'
 services:
-#  todo-service:
-#    build: ./path/to/todo/service
-#    ports:
-#      - "8080:8080"
-#    depends_on:
-#      - mongodb
+  todo-service:
+    build:
+      context: ./todo-service/todo-service
+      dockerfile: docker/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: db-seed
+      SPRING_DATA_MONGODB_URI: mongodb://admin:dasspassword@mongodb:27017
+      USER_SERVICE_URL: http://user-service:8085
+    depends_on:
+      - mongodb
+      - user-service
+    networks:
+      - app-network
 #      - kafka
-#
-#  user-service:
-#    build: ./path/to/user/service
-#    ports:
-#      - "8081:8080"
-#    depends_on:
-#      - mongodb
+
+  user-service:
+    build:
+      context: ./user-management/user-service
+      dockerfile: docker/Dockerfile
+    ports:
+      - "8085:8085"
+    environment:
+      SPRING_PROFILES_ACTIVE: db-seed
+      SPRING_DATA_MONGODB_URI: mongodb://admin:dasspassword@mongodb:27017
+    depends_on:
+      - mongodb
+    networks:
+      - app-network
 #      - kafka
 
   mongodb:
@@ -23,7 +39,8 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: dasspassword
-
+    networks:
+      - app-network
 #  zookeeper:
 #    image: wurstmeister/zookeeper
 #    ports:
@@ -46,3 +63,7 @@ services:
 #    depends_on:
 #      - todo-service
 #      - user-service
+
+networks:
+  app-network:
+    driver: bridge
