@@ -51,6 +51,3 @@ Event Storming results feed directly into the DDD process. The events, commands,
 - **Policies Guide Business Logic Implementation**: These can be part of domain services or entities.
 - **Read Models Inform Data Retrieval**: These often lead to the implementation of query services or APIs.
 
-## Conclusion
-
-Event Storming is a powerful technique in the DDD toolkit, enabling rapid, collaborative exploration of complex business domains. It is particularly effective in aligning software design closely with business processes and requirements. The insights gained from an Event Storming session can significantly enhance the implementation of DDD, leading to a software solution that is truly representative of the domain it aims to serve.

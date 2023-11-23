@@ -76,7 +76,3 @@ Creating a shared library for MongoDB document entities in a Java-based microser
 
 3. **Documentation**:
     - Document the library and its entities for clarity and ease of use among team members.
-
-### Conclusion
-
-By creating a shared library for MongoDB document entities, you centralize the domain model definitions, ensuring consistency and reducing redundancy across services. This setup requires careful management, especially in terms of version control and documentation, to maintain smooth operations across your microservices landscape.

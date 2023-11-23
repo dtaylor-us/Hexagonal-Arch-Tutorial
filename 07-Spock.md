@@ -106,7 +106,3 @@ class TodoControllerSpec extends Specification {
 ```
 
 Here, the `WebTestClient` performs a POST request to the `/todos` endpoint, and the test verifies the response's status and body content, ensuring they align with expected outcomes.
-
-#### Conclusion
-
-For reactive microservices, a blend of JUnit 5, Mockito, WebTestClient, and Spring's reactive testing tools forms a comprehensive testing suite. Unit tests guarantee the correct functionality of isolated components, while integration tests validate the synergy between various parts of the application, essential for crafting robust and reliable microservices. Leveraging both types of testing is indispensable in the microservice architecture.

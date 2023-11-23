@@ -147,7 +147,3 @@ This microservice will focus on the management of todo tasks. The basic function
 
 6. **Exception Handling**:
     - Implement global exception handling using `@ControllerAdvice` to handle scenarios like not found, invalid inputs, etc.
-
-#### Conclusion
-
-With the above setup, you have a fully functional Todo Management microservice using Spring Boot, WebFlux, and Reactive MongoDB. This service is built following hexagonal architecture principles, ensuring a clean separation of
