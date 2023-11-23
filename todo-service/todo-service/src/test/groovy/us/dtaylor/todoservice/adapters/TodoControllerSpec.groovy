@@ -1,6 +1,7 @@
 package us.dtaylor.todoservice.adapters
 
 import org.slf4j.LoggerFactory
+import org.spockframework.spring.EnableSharedInjection
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
@@ -15,16 +16,21 @@ import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.utility.DockerImageName
 import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
+import spock.lang.Shared
 import spock.lang.Specification
 import us.dtaylor.todoservice.domain.Todo
 
+@EnableSharedInjection
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class TodoControllerSpec extends Specification {
     static final String USER_ID = "1"
+    static final String TODO_ID = "1"
+    public static final String DEFAULT_TITLE = "seed todo"
 
     @Autowired
     WebTestClient webTestClient
 
+    @Shared
     @Autowired
     ReactiveMongoTemplate reactiveMongoTemplate
 
@@ -66,28 +72,42 @@ class TodoControllerSpec extends Specification {
         registry.add("user.service.url", () -> userServiceUrl);
     }
 
-    def setup() {
+    def setupSpec() {
         // Seed the database
-        Todo todo = getTodo()
-        Mono<Void> insertMono = reactiveMongoTemplate.insert(todo).then()
+        Todo seed_todo = getTodo(DEFAULT_TITLE)
+        seed_todo.setId(TODO_ID)
+        Mono<Void> insertMono = reactiveMongoTemplate.insert(seed_todo).then()
 
         StepVerifier.create(insertMono)
                 .expectComplete()
                 .verify()
     }
 
-    def getTodo() {
-        return Todo.builder()
-                .title("Test")
-                .description("Test")
-                .completed(false)
-                .userId(USER_ID)
-                .build()
+    def getTodo(String title) {
+        return new Todo(
+                title: title,
+                description: "Description for a test comment: $title",
+                completed: false,
+                userId: USER_ID
+        )
+    }
+
+    def insertTodo(String title) {
+        def todo = getTodo(title)
+        String id = UUID.randomUUID().toString()
+        todo.setId(id)
+
+        Mono<Void> insertMono = reactiveMongoTemplate.insert(todo).then()
+
+        StepVerifier.create(insertMono)
+                .expectComplete()
+                .verify()
+        return [id, todo]
     }
 
     def 'getAll should return list of todos'() {
         given:
-        Todo expectedTodo = getTodo()
+        Todo expectedTodo = getTodo(DEFAULT_TITLE)
 
         when: "getAll endpoint is called"
         def response = webTestClient.get().uri("/api/v1/todos")
@@ -108,102 +128,96 @@ class TodoControllerSpec extends Specification {
 
     def 'createTodo should return created todo'() {
         given:
-        Todo todo = Todo.builder()
-                .title("created todo")
-                .description("crud test")
-                .completed(false)
-                .userId(USER_ID)
-                .build()
+        Todo todo1 = new Todo(
+                title: "created todo",
+                description: "crud test",
+                completed: false,
+                userId: USER_ID
+        )
 
         when: "createTodo endpoint is called"
         def response = webTestClient.post().uri("/api/v1/todos/{userId}", USER_ID)
                 .accept(MediaType.APPLICATION_JSON)
-                .bodyValue(todo)
+                .bodyValue(todo1)
                 .exchange()
 
         then: "the response is successful and contains the created todo"
         response.expectStatus().isOk()
                 .expectBody(Todo.class)
                 .consumeWith { result ->
-                    assert result.responseBody.title == todo.title
-                    assert result.responseBody.description == todo.description
+                    assert result.responseBody.title == todo1.title
+                    assert result.responseBody.description == todo1.description
                     assert !result.responseBody.completed
                 }
     }
-//
-//    def 'getTodoById should return todo'() {
-//        given:
-//        Todo todo = getTodo()
-//        todoService.getTodoById(todo.id) >> Mono.just(todo)
-//
-//        when: "getTodoById endpoint is called"
-//        def response = webTestClient.get().uri("/api/v1/todos/{id}", todo.id)
-//                .accept(MediaType.APPLICATION_JSON)
-//                .exchange()
-//
-//        then: "the response is successful and contains the todo"
-//        response.expectStatus().isOk()
-//                .expectBody(Todo.class)
-//                .consumeWith { result ->
-//                    assert result.responseBody.title == todo.title
-//                    assert result.responseBody.description == todo.description
-//                    assert !result.responseBody.completed
-//                }
-//    }
-//
-//    def 'getAllTodosByUserId should return list of todos'() {
-//        given:
-//        Todo todo = getTodo()
-//        todoService.getAllTodosByUserId(USER_ID) >> Flux.just(todo)
-//
-//        when: "getAllTodosByUserId endpoint is called"
-//        def response = webTestClient.get().uri("/api/v1/todos/user/{userId}", USER_ID)
-//                .accept(MediaType.APPLICATION_JSON)
-//                .exchange()
-//
-//        then: "the response is successful and contains the todos"
-//        response.expectStatus().isOk()
-//                .expectBodyList(Todo.class)
-//                .hasSize(1)
-//                .consumeWith { result ->
-//                    assert result.responseBody[0].title == todo.title
-//                    assert result.responseBody[0].description == todo.description
-//                    assert !result.responseBody[0].completed
-//                }
-//    }
-//
-//    def 'updateTodo should return updated todo'() {
-//        given:
-//        Todo todo = getTodo()
-//        todoService.updateTodo(todo.id, todo) >> Mono.just(todo)
-//
-//        when: "updateTodo endpoint is called"
-//        def response = webTestClient.put().uri("/api/v1/todos/{id}", todo.id)
-//                .accept(MediaType.APPLICATION_JSON)
-//                .bodyValue(todo)
-//                .exchange()
-//
-//        then: "the response is successful and contains the updated todo"
-//        response.expectStatus().isOk()
-//                .expectBody(Todo.class)
-//                .consumeWith { result ->
-//                    assert result.responseBody.title == todo.title
-//                    assert result.responseBody.description == todo.description
-//                    assert !result.responseBody.completed
-//                }
-//    }
-//
-//    def 'deleteById should return no content'() {
-//        given:
-//        Todo todo = getTodo()
-//        todoService.deleteTodo(todo.id) >> Mono.empty()
-//
-//        when: "deleteById endpoint is called"
-//        def response = webTestClient.delete().uri("/api/v1/todos/{id}", todo.id)
-//                .accept(MediaType.APPLICATION_JSON)
-//                .exchange()
-//
-//        then: "the response is successful and contains the updated todo"
-//        response.expectStatus().isOk()
-//    }
+
+    def 'getTodoById should return todo'() {
+        when: "getTodoById endpoint is called"
+        def response = webTestClient.get().uri("/api/v1/todos/{id}", TODO_ID)
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+
+        then: "the response is successful and contains the todo"
+        response.expectStatus().isOk()
+                .expectBody(Todo.class)
+                .consumeWith { result ->
+                    assert result.responseBody.title == DEFAULT_TITLE
+                    assert !result.responseBody.completed
+                }
+    }
+
+    def 'getAllTodosByUserId should return list of todos'() {
+        given: "a user todo"
+        def (String id, Todo todo) = insertTodo("user todo")
+
+        when: "getAllTodosByUserId endpoint is called"
+        def response = webTestClient.get().uri("/api/v1/todos/user/{userId}", USER_ID)
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+
+        then: "the response is successful and contains the todos"
+        response.expectStatus().isOk()
+                .expectBodyList(Todo.class)
+
+                .contains(todo)
+                .consumeWith { result ->
+                    assert result.responseBody.find { it ->
+                        it.id == id
+                    }
+                }
+
+    }
+
+    def 'updateTodo should return updated todo'() {
+        given:
+        Todo updated_todo = getTodo("updated todo")
+
+        when: "updateTodo endpoint is called"
+        def response = webTestClient.put().uri("/api/v1/todos/{id}", TODO_ID)
+                .accept(MediaType.APPLICATION_JSON)
+                .bodyValue(updated_todo)
+                .exchange()
+
+        then: "the response is successful and contains the updated todo"
+        response.expectStatus().isOk()
+                .expectBody(Todo.class)
+                .consumeWith { result ->
+                    assert result.responseBody.title == updated_todo.title
+                    assert result.responseBody.description == updated_todo.description
+                    assert !result.responseBody.completed
+                }
+    }
+
+    def 'deleteById should return no content'() {
+        setup: "a user todo"
+        def (String id, Todo _) = insertTodo("delete todo")
+
+        when: "deleteById endpoint is called"
+        def response = webTestClient.delete().uri("/api/v1/todos/{id}", id)
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+
+        then: "the response is successful and contains the updated todo"
+        response.expectStatus().isOk()
+    }
 }

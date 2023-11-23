@@ -1,18 +1,16 @@
 package us.dtaylor.todoservice.domain;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Getter
-@Setter
+@Data
+@NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @ToString
 @Document
 @EqualsAndHashCode
@@ -23,7 +21,5 @@ public class Todo {
     private String description;
     private boolean completed;
     private String userId;
-
-    public Todo() {
-    }
 }
+

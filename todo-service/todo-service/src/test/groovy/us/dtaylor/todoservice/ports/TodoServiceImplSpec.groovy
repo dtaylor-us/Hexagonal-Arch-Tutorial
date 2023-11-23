@@ -1,7 +1,6 @@
 package us.dtaylor.todoservice.ports
 
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.data.crossstore.ChangeSetPersister
+
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
@@ -11,7 +10,6 @@ import us.dtaylor.todoservice.adapters.UserClient
 import us.dtaylor.todoservice.domain.Todo
 import us.dtaylor.todoservice.domain.User
 
-@SpringBootTest
 class TodoServiceImplSpec extends Specification {
 
     public static final String USER_ID = "2"
@@ -28,13 +26,7 @@ class TodoServiceImplSpec extends Specification {
     }
 
     def getTodo() {
-        return Todo.builder()
-                .id("1")
-                .title("Test")
-                .description("Test")
-                .completed(false)
-                .userId(USER_ID)
-                .build()
+        return new Todo(id: "1", title: "Test", description: "Test", completed: false, userId: USER_ID)
     }
 
     def "create todo item"() {
@@ -95,34 +87,18 @@ class TodoServiceImplSpec extends Specification {
                 .verifyComplete()
     }
 
-//    TODO: FIX TEST
-//    def "delete todo item - success"() {
-//        given:
-//        def todo = getTodo()
-//        todoRepository.findById(todo.id) >> Mono.just(todo) // Make sure this is the expected todo
-//        todoRepository.delete(todo) >> Mono.just(Void) // Correctly mock the delete operation
-//
-//        when:
-//        Mono<Void> result = todoService.deleteTodo(todo.id)
-//
-//        then:
-//        StepVerifier.create(result)
-//                .expectNextMatches { it == null }
-//                .verifyComplete() // Verify that the Mono completes without emitting any item
-//    }
-
-    def "delete todo item - not found"() {
+    def "delete todo item - success"() {
         given:
-        String nonExistentId = "2"
-        todoRepository.findById(nonExistentId) >> Mono.empty()
+        todoRepository.deleteById("1") >> Mono.just(Void)
 
         when:
-        Mono<Void> result = todoService.deleteTodo(nonExistentId)
+        Mono<Void> result = todoService.deleteTodo("1")
 
         then:
         StepVerifier.create(result)
-                .expectError(ChangeSetPersister.NotFoundException.class)
-                .verify()
+        .expectNextMatches { //noinspection GrEqualsBetweenInconvertibleTypes
+            it == Void }
+                .verifyComplete()
     }
 
 }

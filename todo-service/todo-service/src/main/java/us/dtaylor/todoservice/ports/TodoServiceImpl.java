@@ -62,9 +62,7 @@ public class TodoServiceImpl implements TodoService {
 
     @Override
     public Mono<Void> deleteTodo(String id) {
-        return repository.findById(id)
-                .flatMap(repository::delete)
-                .switchIfEmpty(Mono.error(new ChangeSetPersister.NotFoundException()));
+        return repository.deleteById(id);
     }
 
 
