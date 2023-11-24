@@ -1,4 +1,4 @@
-package us.dtaylor.todoservice.adapters
+package us.dtaylor.todoservice.infrastructure.client
 
 
 import org.springframework.web.reactive.function.client.WebClient
@@ -9,7 +9,7 @@ import us.dtaylor.todoservice.domain.User
 import us.dtaylor.todoservice.domain.exceptions.ClientException
 import us.dtaylor.todoservice.infastructure.client.ReactiveUserClient
 
-class ReactiveUserClientTest extends Specification {
+class ReactiveUserClientSpec extends Specification {
 
     WebClient userWebClient;
 
@@ -22,8 +22,8 @@ class ReactiveUserClientTest extends Specification {
 
     def "getUserById should retrieve user"() {
         given:
-        def userId = "123"
-        def expectedUser = new User(userId, "John Doe", "john@example.com")
+        def userId = UUID.randomUUID()
+        def expectedUser = new User(id: userId, name: "John Doe", email: "john@example.com")
         def uriSpec = Mock(WebClient.RequestHeadersUriSpec)
         def headersSpec = Mock(WebClient.RequestHeadersSpec)
         def responseSpec = Mock(WebClient.ResponseSpec)
@@ -43,10 +43,9 @@ class ReactiveUserClientTest extends Specification {
         result.block() == expectedUser
     }
 
-
     def "getUserById should return null if user not found"() {
         given:
-        def userId = "123"
+        def userId = UUID.randomUUID()
         def uriSpec = Mock(WebClient.RequestHeadersUriSpec)
         def headersSpec = Mock(WebClient.RequestHeadersSpec)
         def responseSpec = Mock(WebClient.ResponseSpec)
@@ -66,8 +65,8 @@ class ReactiveUserClientTest extends Specification {
 
     def "getAllUsers should send a GET request and return a Flux of users"() {
         given:
-        def user1 = new User("123", "John Doe", "john@example.com")
-        def user2 = new User("456", "Jane Doe", "jane@example.com")
+        def user1 = new User(id: UUID.randomUUID(), name: "John Doe", email: "john@example.com")
+        def user2 = new User(id: UUID.randomUUID(), name: "Jane Doe", email: "jane@example.com")
         def uriSpec = Mock(WebClient.RequestHeadersUriSpec)
         def headersSpec = Mock(WebClient.RequestHeadersSpec)
         def responseSpec = Mock(WebClient.ResponseSpec)

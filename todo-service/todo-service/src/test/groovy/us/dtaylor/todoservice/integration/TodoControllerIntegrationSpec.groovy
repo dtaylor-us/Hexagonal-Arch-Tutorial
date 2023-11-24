@@ -1,9 +1,10 @@
-package us.dtaylor.todoservice.adapters
+package us.dtaylor.todoservice.integration
 
 import org.slf4j.LoggerFactory
 import org.spockframework.spring.EnableSharedInjection
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.core.env.Environment
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.http.MediaType
 import org.springframework.test.context.DynamicPropertyRegistry
@@ -19,14 +20,20 @@ import reactor.test.StepVerifier
 import spock.lang.Shared
 import spock.lang.Specification
 import us.dtaylor.todoservice.domain.Todo
+import us.dtaylor.todoservice.domain.User
 
 @EnableSharedInjection
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class TodoControllerSpec extends Specification {
-    static final String USER_ID = "1"
-    static final String TODO_ID = "1"
+class TodoControllerIntegrationSpec extends Specification {
+
+    def static USER_ID
+    static final UUID TODO_ID = UUID.randomUUID()
     public static final String DEFAULT_TITLE = "seed todo"
 
+    @Autowired
+    Environment environment
+
+    @Shared
     @Autowired
     WebTestClient webTestClient
 
@@ -73,6 +80,19 @@ class TodoControllerSpec extends Specification {
     }
 
     def setupSpec() {
+        def userServiceClient = createWebTestClient() // Automatically fetches the user service URL
+
+        // set user id
+        userServiceClient.get()
+                .uri("/api/v1/users")
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBodyList(User.class)
+                .consumeWith { result ->
+                    USER_ID = result.responseBody.find({ it.name == "admin" }).id
+                }
+
         // Seed the database
         Todo seed_todo = getTodo(DEFAULT_TITLE)
         seed_todo.setId(TODO_ID)
@@ -81,6 +101,13 @@ class TodoControllerSpec extends Specification {
         StepVerifier.create(insertMono)
                 .expectComplete()
                 .verify()
+    }
+
+    private WebTestClient createWebTestClient() {
+        String userServiceUrl = environment.getProperty("user.service.url")
+        return WebTestClient.bindToServer()
+                .baseUrl(userServiceUrl)
+                .build()
     }
 
     def getTodo(String title) {
@@ -94,7 +121,7 @@ class TodoControllerSpec extends Specification {
 
     def insertTodo(String title) {
         def todo = getTodo(title)
-        String id = UUID.randomUUID().toString()
+        def id = UUID.randomUUID()
         todo.setId(id)
 
         Mono<Void> insertMono = reactiveMongoTemplate.insert(todo).then()
@@ -168,7 +195,7 @@ class TodoControllerSpec extends Specification {
 
     def 'getAllTodosByUserId should return list of todos'() {
         given: "a user todo"
-        def (String id, Todo todo) = insertTodo("user todo")
+        def (UUID id, Todo todo) = insertTodo("user todo")
 
         when: "getAllTodosByUserId endpoint is called"
         def response = webTestClient.get().uri("/api/v1/todos/user/{userId}", USER_ID)
@@ -210,7 +237,7 @@ class TodoControllerSpec extends Specification {
 
     def 'deleteById should return no content'() {
         setup: "a user todo"
-        def (String id, Todo _) = insertTodo("delete todo")
+        def (UUID id, Todo _) = insertTodo("delete todo")
 
         when: "deleteById endpoint is called"
         def response = webTestClient.delete().uri("/api/v1/todos/{id}", id)

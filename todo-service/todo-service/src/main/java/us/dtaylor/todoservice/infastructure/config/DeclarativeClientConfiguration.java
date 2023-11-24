@@ -15,7 +15,7 @@ import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 import us.dtaylor.todoservice.domain.exceptions.ClientException;
 import us.dtaylor.todoservice.domain.exceptions.ClientTimeOutException;
-import us.dtaylor.todoservice.infastructure.client.DeclarativeUserClient;
+import us.dtaylor.todoservice.infastructure.client.DeclarativeReactiveUserClient;
 
 import java.util.concurrent.TimeUnit;
 
@@ -64,10 +64,10 @@ public class DeclarativeClientConfiguration {
     }
 
     @Bean
-    DeclarativeUserClient userClient(WebClientAdapter userWebClientAdapter) {
+    DeclarativeReactiveUserClient userClient(WebClientAdapter userWebClientAdapter) {
     return HttpServiceProxyFactory.builder(userWebClientAdapter)
             .build()
-            .createClient(DeclarativeUserClient.class);
+            .createClient(DeclarativeReactiveUserClient.class);
         }
 
 }

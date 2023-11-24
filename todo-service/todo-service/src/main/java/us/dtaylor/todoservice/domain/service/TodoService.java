@@ -4,11 +4,13 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import us.dtaylor.todoservice.domain.Todo;
 
+import java.util.UUID;
+
 public interface TodoService {
-    Mono<Todo> createTodo(String userId, Todo todo);
-    Flux<Todo> getAllTodosByUserId(String userId);
+    Mono<Todo> createTodo(UUID userId, Todo todo);
+    Flux<Todo> getAllTodosByUserId(UUID userId);
     Flux<Todo> getAllTodos();
-    Mono<Todo> getTodoById(String id);
-    Mono<Todo> updateTodo(String id, Todo todo);
-    Mono<Void> deleteTodo(String id);
+    Mono<Todo> getTodoById(UUID id);
+    Mono<Todo> updateTodo(UUID id, Todo todo);
+    Mono<Void> deleteTodo(UUID id);
 }

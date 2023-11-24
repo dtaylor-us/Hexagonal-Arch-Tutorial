@@ -1,12 +1,14 @@
-package us.dtaylor.user;
+package us.dtaylor.userservice;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
-import us.dtaylor.user.domain.User;
-import us.dtaylor.user.ports.UserRepository;
+import us.dtaylor.userservice.domain.User;
+import us.dtaylor.userservice.infastructure.persistence.repository.MongoDbUserRepository;
+
+import java.util.UUID;
 
 @SpringBootApplication
 public class UserApplication {
@@ -17,14 +19,12 @@ public class UserApplication {
 
     @Bean
     @Profile("db-seed")
-    public CommandLineRunner databaseSeeder(UserRepository userRepository) {
+    public CommandLineRunner databaseSeeder(MongoDbUserRepository mongoDbUserRepository) {
         return args -> {
             // Check if the database is empty
-            if (userRepository.count().block() == 0L) {
-                userRepository.deleteAll().block();
+                mongoDbUserRepository.deleteAll().block();
                 // Seed the database
-                userRepository.save(new User("1", "admin", "admin@todo-app.com")).block();
-            }
+                mongoDbUserRepository.save(new User(UUID.randomUUID(), "admin", "admin@todo-app.com")).block();
         };
     }
 }

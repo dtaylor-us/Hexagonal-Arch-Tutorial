@@ -3,18 +3,20 @@ package us.dtaylor.todoservice.domain.service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import us.dtaylor.todoservice.domain.User;
-import us.dtaylor.todoservice.infastructure.client.DeclarativeUserClient;
+import us.dtaylor.todoservice.infastructure.client.DeclarativeReactiveUserClient;
+
+import java.util.UUID;
 
 public class DomainUserService implements UserService {
 
-    private final DeclarativeUserClient userClient;
+    private final DeclarativeReactiveUserClient userClient;
 
-    public DomainUserService(DeclarativeUserClient userClient) {
+    public DomainUserService(DeclarativeReactiveUserClient userClient) {
         this.userClient = userClient;
     }
 
     @Override
-    public Mono<User> getUserById(String userId) {
+    public Mono<User> getUserById(UUID userId) {
         return userClient.getUserById(userId);
     }
 

@@ -1,4 +1,4 @@
-package us.dtaylor.user.adapters
+package us.dtaylor.userservice.application
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -7,16 +7,16 @@ import org.springframework.test.web.reactive.server.WebTestClient
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import spock.lang.Specification
-import us.dtaylor.user.IntegrationTestConfiguration
-import us.dtaylor.user.domain.User
-import us.dtaylor.user.ports.UserService
+import us.dtaylor.userservice.IntegrationTestConfiguration
+import us.dtaylor.userservice.domain.User
+import us.dtaylor.userservice.domain.service.UserService
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(IntegrationTestConfiguration)
 class UserControllerSpec extends Specification {
 
     public static final String TEST_EMAIL = "spock@test.com"
-    public static final String ID = "my-id"
+    public static final UUID ID = UUID.randomUUID()
     public static final String NAME = "FooBar"
 
     @Autowired
@@ -97,7 +97,7 @@ class UserControllerSpec extends Specification {
                 name: NAME,
                 email: TEST_EMAIL)
 
-        userService.updateUser(user.id, _) >> Mono.just(user)
+        userService.updateUser(user.id, _ as User) >> Mono.just(user)
 
         when: "update endpoint is called"
         def response = webTestClient.put().uri("/api/v1/users/${user.id}")

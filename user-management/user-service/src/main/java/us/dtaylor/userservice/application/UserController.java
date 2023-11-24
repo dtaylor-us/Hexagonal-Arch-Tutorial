@@ -1,4 +1,4 @@
-package us.dtaylor.user.adapters;
+package us.dtaylor.userservice.application;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -12,8 +12,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import us.dtaylor.user.domain.User;
-import us.dtaylor.user.ports.UserService;
+import us.dtaylor.userservice.domain.User;
+import us.dtaylor.userservice.domain.service.UserService;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -38,20 +40,20 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public Mono<ResponseEntity<User>> getUserById(@PathVariable String id) {
+    public Mono<ResponseEntity<User>> getUserById(@PathVariable UUID id) {
         return userService.getUserById(id)
                 .map(ResponseEntity::ok);
     }
 
     @PutMapping("/{id}")
-    public Mono<ResponseEntity<User>> updateUser(@PathVariable String id, @RequestBody User user) {
+    public Mono<ResponseEntity<User>> updateUser(@PathVariable UUID id, @RequestBody User user) {
         return userService.updateUser(id, user)
                 .map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
-    public Mono<ResponseEntity<Void>> deleteUser(@PathVariable String id) {
+    public Mono<ResponseEntity<Void>> deleteUser(@PathVariable UUID id) {
         return userService.deleteUser(id).then(Mono.just(ResponseEntity.ok().build()));
     }
 

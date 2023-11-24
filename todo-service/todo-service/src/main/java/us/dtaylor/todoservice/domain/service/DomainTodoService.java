@@ -8,6 +8,8 @@ import reactor.core.publisher.Mono;
 import us.dtaylor.todoservice.domain.repository.TodoRepository;
 import us.dtaylor.todoservice.domain.Todo;
 
+import java.util.UUID;
+
 @Service
 public class DomainTodoService implements TodoService {
     private final TodoRepository repository;
@@ -20,17 +22,18 @@ public class DomainTodoService implements TodoService {
     }
 
     @Override
-    public Mono<Todo> createTodo(String userId, Todo todo) {
+    public Mono<Todo> createTodo(UUID userId, Todo todo) {
         return userService.getUserById(userId)
                 .flatMap(user -> {
-                    todo.setUserId(user.getId());
+                    todo.setUserId(user.getId())
+                        .setId(UUID.randomUUID());
                     return repository.save(todo);
                 });
     }
 
 
     @Override
-    public Flux<Todo> getAllTodosByUserId(String userId) {
+    public Flux<Todo> getAllTodosByUserId(UUID userId) {
         return repository.findAllByUserId(userId);
     }
 
@@ -40,12 +43,12 @@ public class DomainTodoService implements TodoService {
     }
 
     @Override
-    public Mono<Todo> getTodoById(String id) {
+    public Mono<Todo> getTodoById(UUID id) {
         return repository.findById(id);
     }
 
     @Override
-    public Mono<Todo> updateTodo(String id, Todo todo) {
+    public Mono<Todo> updateTodo(UUID id, Todo todo) {
         return repository.findById(id)
                 .flatMap(existingTodo -> {
                     existingTodo.setTitle(todo.getTitle());
@@ -58,7 +61,7 @@ public class DomainTodoService implements TodoService {
 
 
     @Override
-    public Mono<Void> deleteTodo(String id) {
+    public Mono<Void> deleteTodo(UUID id) {
         return repository.deleteById(id);
     }
 

@@ -1,4 +1,4 @@
-package us.dtaylor.todoservice.ports
+package us.dtaylor.todoservice.domain
 
 
 import reactor.core.publisher.Flux
@@ -6,20 +6,19 @@ import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
 import spock.lang.Specification
 import spock.lang.Subject
+import us.dtaylor.todoservice.domain.repository.TodoRepository
 import us.dtaylor.todoservice.domain.service.DomainTodoService
-import us.dtaylor.todoservice.domain.Todo
-import us.dtaylor.todoservice.domain.User
 import us.dtaylor.todoservice.infastructure.client.ReactiveUserClient
-import us.dtaylor.todoservice.infastructure.repository.MongoDbTodoRepository
+import us.dtaylor.todoservice.infastructure.persistence.repository.MongoDbTodoRepository
 
 class DomainTodoServiceSpec extends Specification {
 
-    public static final String USER_ID = "2"
+    public static final UUID USER_ID = UUID.randomUUID()
 
     @Subject
     DomainTodoService todoService
 
-    MongoDbTodoRepository todoRepository = Mock()
+    TodoRepository todoRepository = Mock()
 
     ReactiveUserClient userClient = Mock()
 
@@ -28,7 +27,7 @@ class DomainTodoServiceSpec extends Specification {
     }
 
     def getTodo() {
-        return new Todo(id: "1", title: "Test", description: "Test", completed: false, userId: USER_ID)
+        return new Todo(id: UUID.randomUUID(), title: "Test", description: "Test", completed: false, userId: USER_ID)
     }
 
     def "create todo item"() {
@@ -91,15 +90,17 @@ class DomainTodoServiceSpec extends Specification {
 
     def "delete todo item - success"() {
         given:
-        todoRepository.deleteById("1") >> Mono.just(Void)
+        // Mock the deleteById method to return an empty Mono
+        UUID todoId = getTodo().getId()
+        todoRepository.deleteById(todoId) >> Mono.empty()
 
         when:
-        Mono<Void> result = todoService.deleteTodo("1")
+        // Call the deleteTodo service method
+        Mono<Void> result = todoService.deleteTodo(todoId)
 
         then:
+        // Verify that the Mono completes successfully
         StepVerifier.create(result)
-        .expectNextMatches { //noinspection GrEqualsBetweenInconvertibleTypes
-            it == Void }
                 .verifyComplete()
     }
 

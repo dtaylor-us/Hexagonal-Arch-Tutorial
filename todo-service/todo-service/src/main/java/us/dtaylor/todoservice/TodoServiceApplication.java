@@ -6,7 +6,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
 import us.dtaylor.todoservice.domain.Todo;
-import us.dtaylor.todoservice.infastructure.repository.MongoDbTodoRepository;
+import us.dtaylor.todoservice.infastructure.persistence.repository.MongoDbTodoRepository;
+
+import java.util.UUID;
 
 @SpringBootApplication
 public class TodoServiceApplication {
@@ -22,8 +24,8 @@ public class TodoServiceApplication {
             // Check if the database is empty
                 todoRepository.deleteAll().block();
                 // Seed the database
-                todoRepository.save(new Todo("1", "Task 1", "Description 1", false, "1")).block();
-                todoRepository.save(new Todo("2", "Task 2", "Description 2", true, "1")).block();
+                todoRepository.save(new Todo(UUID.randomUUID(), "Task 1", "Description 1", false, UUID.randomUUID())).block();
+                todoRepository.save(new Todo(UUID.randomUUID(), "Task 2", "Description 2", true, UUID.randomUUID())).block();
                 // Add more todos as needed
         };
     }

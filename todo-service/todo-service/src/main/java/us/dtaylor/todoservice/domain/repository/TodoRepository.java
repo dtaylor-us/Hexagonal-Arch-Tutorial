@@ -4,9 +4,11 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import us.dtaylor.todoservice.domain.Todo;
 
+import java.util.UUID;
+
 public interface TodoRepository {
 
-    Flux<Todo> findAllByUserId(String userId);
+    Flux<Todo> findAllByUserId(UUID userId);
 
     Mono<Void> deleteAll();
 
@@ -14,7 +16,7 @@ public interface TodoRepository {
 
     Flux<Todo> findAll();
 
-    Mono<Void> deleteById(String id);
+    Mono<Void> deleteById(UUID id);
 
-    Mono<Todo> findById(String id);
+    Mono<Todo> findById(UUID id);
 }

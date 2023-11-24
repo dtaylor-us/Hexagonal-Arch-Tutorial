@@ -1,8 +1,8 @@
-package us.dtaylor.user
+package us.dtaylor.userservice
 
 import org.springframework.context.annotation.Bean
 import spock.mock.DetachedMockFactory
-import us.dtaylor.user.ports.UserService
+import us.dtaylor.userservice.domain.service.UserService
 
 class IntegrationTestConfiguration {
     private final detachedMockFactory = new DetachedMockFactory()

@@ -12,6 +12,7 @@ import us.dtaylor.todoservice.domain.exceptions.ClientTimeOutException;
 import us.dtaylor.todoservice.domain.service.UserService;
 
 import java.time.Duration;
+import java.util.UUID;
 import java.util.concurrent.TimeoutException;
 
 @Component
@@ -25,7 +26,7 @@ public class ReactiveUserClient implements UserService {
         this.userWebClient = userWebClient;
     }
 
-    public Mono<User> getUserById(String userId) {
+    public Mono<User> getUserById(UUID userId) {
         return userWebClient.get().uri("/api/v1/users/{id}", userId)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError, response -> Mono.error(new ClientException(ERROR_OCCURRED_RETRIEVING_USER)))

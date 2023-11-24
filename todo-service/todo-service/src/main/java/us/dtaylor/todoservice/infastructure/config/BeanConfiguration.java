@@ -8,7 +8,7 @@ import us.dtaylor.todoservice.domain.service.DomainTodoService;
 import us.dtaylor.todoservice.domain.service.DomainUserService;
 import us.dtaylor.todoservice.domain.service.TodoService;
 import us.dtaylor.todoservice.domain.service.UserService;
-import us.dtaylor.todoservice.infastructure.client.DeclarativeUserClient;
+import us.dtaylor.todoservice.infastructure.client.DeclarativeReactiveUserClient;
 
 @Configuration
 @ComponentScan(basePackageClasses = TodoService.class)
@@ -20,7 +20,7 @@ public class BeanConfiguration {
     }
 
     @Bean
-    UserService userService(final DeclarativeUserClient userClient) {
+    UserService userService(final DeclarativeReactiveUserClient userClient) {
         return new DomainUserService(userClient);
     }
 }
