@@ -1,4 +1,4 @@
-package us.dtaylor.todoservice.config;
+package us.dtaylor.todoservice.infastructure.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

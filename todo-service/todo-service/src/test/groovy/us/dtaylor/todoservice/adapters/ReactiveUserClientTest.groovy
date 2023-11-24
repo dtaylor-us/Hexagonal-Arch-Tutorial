@@ -6,16 +6,18 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import spock.lang.Specification
 import us.dtaylor.todoservice.domain.User
+import us.dtaylor.todoservice.domain.exceptions.ClientException
+import us.dtaylor.todoservice.infastructure.client.ReactiveUserClient
 
-class UserClientTest extends Specification {
+class ReactiveUserClientTest extends Specification {
 
-    WebClient webClient;
+    WebClient userWebClient;
 
-    UserClient userClient;
+    ReactiveUserClient userClient;
 
     def setup() {
-        webClient = Mock(WebClient)
-        userClient = new UserClient(webClient)
+        userWebClient = Mock(WebClient)
+        userClient = new ReactiveUserClient(userWebClient)
     }
 
     def "getUserById should retrieve user"() {
@@ -26,9 +28,12 @@ class UserClientTest extends Specification {
         def headersSpec = Mock(WebClient.RequestHeadersSpec)
         def responseSpec = Mock(WebClient.ResponseSpec)
 
-        webClient.get() >> uriSpec
+        userWebClient.get() >> uriSpec
         uriSpec.uri("/api/v1/users/{id}", userId) >> headersSpec
         headersSpec.retrieve() >> responseSpec
+
+        // Use argument matchers to ensure that onStatus handles any arguments appropriately
+        responseSpec.onStatus({ it -> true }, { _ -> Mono.error(new ClientException("Error")) }) >> responseSpec
         responseSpec.bodyToMono(User) >> Mono.just(expectedUser)
 
         when:
@@ -38,6 +43,7 @@ class UserClientTest extends Specification {
         result.block() == expectedUser
     }
 
+
     def "getUserById should return null if user not found"() {
         given:
         def userId = "123"
@@ -45,55 +51,14 @@ class UserClientTest extends Specification {
         def headersSpec = Mock(WebClient.RequestHeadersSpec)
         def responseSpec = Mock(WebClient.ResponseSpec)
 
-        webClient.get() >> uriSpec
+        userWebClient.get() >> uriSpec
         uriSpec.uri("/api/v1/users/{id}", userId) >> headersSpec
         headersSpec.retrieve() >> responseSpec
+        responseSpec.onStatus({ it -> true }, { _ -> Mono.error(new ClientException("Error")) }) >> responseSpec
         responseSpec.bodyToMono(User) >> Mono.empty()
 
         when:
         Mono<User> result = userClient.getUserById(userId)
-
-        then:
-        result.block() == null
-    }
-
-    def "updateUser should send a PUT request and return updated user"() {
-        given:
-        def userId = "123"
-        def existingUser = new User(userId, "John Doe", "john@example.com")
-        def updatedUser = new User(userId, "Jane Doe", "jane@example.com")
-        def uriSpec = Mock(WebClient.RequestBodyUriSpec)
-        def bodySpec = Mock(WebClient.RequestBodySpec)
-        def headersSpec = Mock(WebClient.RequestHeadersSpec)
-        def responseSpec = Mock(WebClient.ResponseSpec)
-
-        webClient.put() >> uriSpec
-        uriSpec.uri("/api/v1/users/{id}", userId) >> bodySpec
-        bodySpec.body(_, _) >> headersSpec
-        headersSpec.retrieve() >> responseSpec
-        responseSpec.bodyToMono(User.class) >> Mono.just(updatedUser)
-
-        when:
-        Mono<User> result = userClient.updateUser(userId, existingUser)
-
-        then:
-        result.block() == updatedUser
-    }
-
-    def "deleteUser should send a DELETE request and return void"() {
-        given:
-        def userId = "123"
-        def uriSpec = Mock(WebClient.RequestHeadersUriSpec)
-        def headersSpec = Mock(WebClient.RequestHeadersSpec)
-        def responseSpec = Mock(WebClient.ResponseSpec)
-
-        webClient.delete() >> uriSpec
-        uriSpec.uri("/api/v1/users/{id}", userId) >> headersSpec
-        headersSpec.retrieve() >> responseSpec
-        responseSpec.bodyToMono(Void) >> Mono.empty()
-
-        when:
-        Mono<Void> result = userClient.deleteUser(userId)
 
         then:
         result.block() == null
@@ -107,9 +72,11 @@ class UserClientTest extends Specification {
         def headersSpec = Mock(WebClient.RequestHeadersSpec)
         def responseSpec = Mock(WebClient.ResponseSpec)
 
-        webClient.get() >> uriSpec
+        userWebClient.get() >> uriSpec
         uriSpec.uri("/api/v1/users") >> headersSpec
         headersSpec.retrieve() >> responseSpec
+        responseSpec.onStatus({ it -> true }, { _ -> Mono.error(new ClientException("Error")) }) >> responseSpec
+
         responseSpec.bodyToFlux(User) >> Flux.just(user1, user2)
 
         when:

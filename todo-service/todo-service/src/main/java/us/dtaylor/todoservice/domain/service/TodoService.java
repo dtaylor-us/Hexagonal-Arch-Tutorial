@@ -1,4 +1,4 @@
-package us.dtaylor.todoservice.ports;
+package us.dtaylor.todoservice.domain.service;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;

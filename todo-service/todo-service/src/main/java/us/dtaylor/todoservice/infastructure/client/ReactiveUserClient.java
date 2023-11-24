@@ -1,4 +1,4 @@
-package us.dtaylor.todoservice.adapters;
+package us.dtaylor.todoservice.infastructure.client;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatusCode;
@@ -7,46 +7,40 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import us.dtaylor.todoservice.domain.User;
-import us.dtaylor.todoservice.exceptions.ClientException;
-import us.dtaylor.todoservice.exceptions.ClientTimeOutException;
+import us.dtaylor.todoservice.domain.exceptions.ClientException;
+import us.dtaylor.todoservice.domain.exceptions.ClientTimeOutException;
+import us.dtaylor.todoservice.domain.service.UserService;
 
-import javax.naming.ServiceUnavailableException;
 import java.time.Duration;
 import java.util.concurrent.TimeoutException;
 
 @Component
-public class UserClient {
+public class ReactiveUserClient implements UserService {
 
     private static final String ERROR_OCCURRED_RETRIEVING_USER = "Error occurred retrieving user";
     private final WebClient userWebClient;
 
     @Autowired
-    public UserClient(WebClient userWebClient) {
+    public ReactiveUserClient(WebClient userWebClient) {
         this.userWebClient = userWebClient;
     }
 
     public Mono<User> getUserById(String userId) {
-        return makeRequest(userWebClient.get().uri("/api/v1/users/{id}", userId), User.class);
-    }
-
-    public Mono<User> updateUser(String userId, User user) {
-        return makeRequest(userWebClient.put().uri("/api/v1/users/{id}", userId).body(Mono.just(user), User.class), User.class);
-    }
-
-    public Mono<Void> deleteUser(String userId) {
-        return makeRequest(userWebClient.delete().uri("/api/v1/users/{id}", userId), Void.class);
-    }
-
-    public Flux<User> getAllUsers() {
-        return makeRequest(userWebClient.get().uri("/api/v1/users"), User.class).flux();
-    }
-
-    private <T> Mono<T> makeRequest(WebClient.RequestHeadersSpec<?> request, Class<T> bodyType) {
-        return request
+        return userWebClient.get().uri("/api/v1/users/{id}", userId)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError, response -> Mono.error(new ClientException(ERROR_OCCURRED_RETRIEVING_USER)))
-                .bodyToMono(bodyType)
+                .bodyToMono(User.class)
                 .timeout(Duration.ofSeconds(3))
                 .onErrorMap(TimeoutException.class, e -> new ClientTimeOutException("Service unavailable"));
     }
+
+    public Flux<User> getAllUsers() {
+        return userWebClient.get().uri("/api/v1/users")
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, response -> Mono.error(new ClientException(ERROR_OCCURRED_RETRIEVING_USER)))
+                .bodyToFlux(User.class)
+                .timeout(Duration.ofSeconds(3))
+                .onErrorMap(TimeoutException.class, e -> new ClientTimeOutException("Service unavailable"));
+    }
+
 }

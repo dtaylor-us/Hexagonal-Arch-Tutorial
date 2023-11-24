@@ -1,4 +1,4 @@
-package us.dtaylor.todoservice.adapters;
+package us.dtaylor.todoservice.application.rest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import us.dtaylor.todoservice.domain.Todo;
-import us.dtaylor.todoservice.ports.TodoService;
+import us.dtaylor.todoservice.domain.service.TodoService;
 
 @RestController
 @RequestMapping("/api/v1/todos")

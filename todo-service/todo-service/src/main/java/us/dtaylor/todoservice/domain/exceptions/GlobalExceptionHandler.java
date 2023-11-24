@@ -1,4 +1,4 @@
-package us.dtaylor.todoservice.exceptions;
+package us.dtaylor.todoservice.domain.exceptions;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -26,14 +26,6 @@ public class GlobalExceptionHandler {
         // Return a response entity with appropriate HTTP status and message
         log.error("Client timeout exception: {}", ex.getMessage());
         return Mono.just(ResponseEntity.status(HttpStatus.GATEWAY_TIMEOUT).body(ex.getMessage()));
-    }
-
-    @ExceptionHandler(UserNotFoundException.class)
-    public Mono<ResponseEntity<String>> handleUserNotFoundException(UserNotFoundException ex, ServerWebExchange exchange) {
-        // Log the exception details
-        // Return a response entity with appropriate HTTP status and message
-        log.error("User not found exception: {}", ex.getMessage());
-        return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage()));
     }
 
     // Generic exception handler as a fallback

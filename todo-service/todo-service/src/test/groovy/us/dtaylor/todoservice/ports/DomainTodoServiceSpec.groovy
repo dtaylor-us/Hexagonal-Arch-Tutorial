@@ -6,23 +6,25 @@ import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
 import spock.lang.Specification
 import spock.lang.Subject
-import us.dtaylor.todoservice.adapters.UserClient
+import us.dtaylor.todoservice.domain.service.DomainTodoService
 import us.dtaylor.todoservice.domain.Todo
 import us.dtaylor.todoservice.domain.User
+import us.dtaylor.todoservice.infastructure.client.ReactiveUserClient
+import us.dtaylor.todoservice.infastructure.repository.MongoDbTodoRepository
 
-class TodoServiceImplSpec extends Specification {
+class DomainTodoServiceSpec extends Specification {
 
     public static final String USER_ID = "2"
 
     @Subject
-    TodoServiceImpl todoService
+    DomainTodoService todoService
 
-    TodoRepository todoRepository = Mock()
+    MongoDbTodoRepository todoRepository = Mock()
 
-    UserClient userClient = Mock()
+    ReactiveUserClient userClient = Mock()
 
     def setup() {
-        todoService = new TodoServiceImpl(todoRepository, userClient)
+        todoService = new DomainTodoService(todoRepository, userClient)
     }
 
     def getTodo() {

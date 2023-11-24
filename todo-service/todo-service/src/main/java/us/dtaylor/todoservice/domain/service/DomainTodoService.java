@@ -1,34 +1,31 @@
-package us.dtaylor.todoservice.ports;
+package us.dtaylor.todoservice.domain.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import us.dtaylor.todoservice.adapters.UserClient;
+import us.dtaylor.todoservice.domain.repository.TodoRepository;
 import us.dtaylor.todoservice.domain.Todo;
-import us.dtaylor.todoservice.exceptions.UserNotFoundException;
 
 @Service
-public class TodoServiceImpl implements TodoService {
+public class DomainTodoService implements TodoService {
     private final TodoRepository repository;
-    private final UserClient userClient;
+    private final UserService userService;
 
     @Autowired
-    public TodoServiceImpl(TodoRepository repository, UserClient userClient) {
+    public DomainTodoService(TodoRepository repository, UserService userService) {
         this.repository = repository;
-        this.userClient = userClient;
+        this.userService = userService;
     }
 
     @Override
     public Mono<Todo> createTodo(String userId, Todo todo) {
-        return userClient.getUserById(userId)
+        return userService.getUserById(userId)
                 .flatMap(user -> {
                     todo.setUserId(user.getId());
                     return repository.save(todo);
-                })
-                .switchIfEmpty(Mono.error(new UserNotFoundException("User not found for id: " + userId)));
-
+                });
     }
 
 
