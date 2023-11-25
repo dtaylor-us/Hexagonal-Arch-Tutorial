@@ -1,7 +1,9 @@
 package us.dtaylor.userservice.application
 
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.context.annotation.Import
 import org.springframework.test.web.reactive.server.WebTestClient
 import reactor.core.publisher.Flux
@@ -22,7 +24,7 @@ class UserControllerSpec extends Specification {
     @Autowired
     WebTestClient webTestClient
 
-    @Autowired
+    @MockBean
     UserService userService
 
     def 'getAll should return list of users'() {
@@ -54,7 +56,7 @@ class UserControllerSpec extends Specification {
         userService.getUserById(user.id) >> Mono.just(user)
 
         when: "getById endpoint is called"
-        def response = webTestClient.get().uri("/api/v1/users/${user.id}")
+        def response = webTestClient.get().uri("/api/v1/users/${user.id.toString()}")
                 .exchange()
 
         then: "the response is successful and contains the user"
@@ -100,7 +102,7 @@ class UserControllerSpec extends Specification {
         userService.updateUser(user.id, _ as User) >> Mono.just(user)
 
         when: "update endpoint is called"
-        def response = webTestClient.put().uri("/api/v1/users/${user.id}")
+        def response = webTestClient.put().uri("/api/v1/users/${user.id.toString()}")
                 .bodyValue(user)
                 .exchange()
 
@@ -123,7 +125,7 @@ class UserControllerSpec extends Specification {
         userService.deleteUser(user.id) >> Mono.empty()
 
         when: "delete endpoint is called"
-        def response = webTestClient.delete().uri("/api/v1/users/${user.id}")
+        def response = webTestClient.delete().uri("/api/v1/users/${user.id.toString()}")
                 .exchange()
 
         then: "the response is successful and contains the user"

@@ -14,7 +14,7 @@ Containerizing the Angular front-end application using Docker is a robust way to
       WORKDIR /app
       COPY package.json package-lock.json ./
       RUN npm install
-      COPY . ./
+      COPY .. ./
       RUN npm run build
  
       # Stage 2: Serve the application using Nginx

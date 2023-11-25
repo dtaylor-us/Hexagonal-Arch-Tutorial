@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class FilewatcherServiceApplication {
+public class FileWatcherServiceApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(FilewatcherServiceApplication.class, args);
+		SpringApplication.run(FileWatcherServiceApplication.class, args);
 	}
 
 }

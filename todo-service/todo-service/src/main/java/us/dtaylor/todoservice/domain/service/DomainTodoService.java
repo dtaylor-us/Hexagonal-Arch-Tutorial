@@ -70,5 +70,4 @@ public class DomainTodoService implements TodoService {
         return repository.deleteById(id);
     }
 
-
 }

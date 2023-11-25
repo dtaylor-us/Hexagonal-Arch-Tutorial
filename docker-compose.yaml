@@ -3,9 +3,6 @@ services:
   todo-service:
     image: derektaylor/hexagonal-arch:todo-service-0.0.2-SNAPSHOT
     pull_policy: always
-    #    build:
-#      context: ./todo-service/todo-service
-#      dockerfile: docker/Dockerfile
     ports:
       - "8080:8080"
     environment:
@@ -16,6 +13,7 @@ services:
     depends_on:
       - mongodb
       - user-service
+      - kafka
     networks:
       - app-network
       - kafka
@@ -23,19 +21,15 @@ services:
   user-service:
     image: derektaylor/hexagonal-arch:user-service-0.0.2-SNAPSHOT
     pull_policy: always
-
-
-    #    build:
-#      context: ./user-management/user-service
-#      dockerfile: docker/Dockerfile
     ports:
       - "8085:8085"
     environment:
-      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9093
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       SPRING_PROFILES_ACTIVE: db-seed
       SPRING_DATA_MONGODB_URI: mongodb://admin:dasspassword@mongodb:27017
     depends_on:
       - mongodb
+      - kafka
     networks:
       - app-network
       - kafka
@@ -54,20 +48,54 @@ services:
     image: wurstmeister/zookeeper
     ports:
       - "2181:2181"
+    networks:
+      - app-network
+      - kafka
 
   kafka:
     image: wurstmeister/kafka
     ports:
-      - "9092:9092"
+      - "9092:9092"  # Port for local services outside Docker
     environment:
-      KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka:9092,OUTSIDE://localhost:9092
+      KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka:9093,OUTSIDE://localhost:9092  # Advertise two listeners
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
-      KAFKA_LISTENERS: INSIDE://0.0.0.0:9093,OUTSIDE://0.0.0.0:9092
+      KAFKA_LISTENERS: INSIDE://0.0.0.0:9093,OUTSIDE://0.0.0.0:9092  # Listen on both ports
       KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
     depends_on:
       - zookeeper
+    networks:
+      - app-network
+      - kafka
 
+  control-center:
+    image: confluentinc/cp-enterprise-control-center
+    hostname: control-center
+    depends_on:
+      - kafka
+      - zookeeper
+    ports:
+      - "9021:9021"
+    environment:
+      CONTROL_CENTER_BOOTSTRAP_SERVERS: kafka:9092
+      CONTROL_CENTER_ZOOKEEPER_CONNECT: zookeeper:2181
+      CONTROL_CENTER_CONNECT_CLUSTER: kafka:9092
+      CONTROL_CENTER_KSQL_URL: "http://ksql-server:8088"
+      CONTROL_CENTER_KSQL_ADVERTISED_URL: "http://localhost:8088"
+      CONTROL_CENTER_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
+      CONTROL_CENTER_REPLICATION_FACTOR: 1
+      CONTROL_CENTER_INTERNAL_TOPICS_PARTITIONS: 1
+      CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_PARTITIONS: 1
+      CONTROL_CENTER_STREAMS_NUM_STREAM_THREADS: 2
+    networks:
+      - app-network
+      - kafka
+
+networks:
+  app-network:
+    driver: bridge
+  kafka:
+    driver: bridge
 
 #  angular-frontend:
 #    build: ./path/to/angular/frontend
@@ -76,9 +104,3 @@ services:
 #    depends_on:
 #      - todo-service
 #      - user-service
-
-networks:
-  app-network:
-    driver: bridge
-  kafka:
-      driver: bridge

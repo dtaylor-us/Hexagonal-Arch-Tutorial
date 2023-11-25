@@ -11,7 +11,10 @@ import us.dtaylor.todoservice.domain.service.UserService;
 import us.dtaylor.todoservice.infastructure.client.DeclarativeReactiveUserClient;
 
 @Configuration
-@ComponentScan(basePackageClasses = TodoService.class)
+@ComponentScan(basePackageClasses =  {
+        TodoService.class,
+        UserService.class
+})
 public class BeanConfiguration {
 
     @Bean
