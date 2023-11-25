@@ -5,10 +5,10 @@ FROM openjdk:17-alpine
 WORKDIR /app
 
 # Copy the jar file into the container at /app
-COPY build/libs/user-service-0.0.1-SNAPSHOT.jar /app/user-service.jar
+COPY build/libs/*.jar /app/app.jar
 
 # Make port 8080 available to the world outside this container
-EXPOSE 8080
+EXPOSE 8085
 
 # Run the jar file
-ENTRYPOINT ["java", "-jar", "user-service.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]

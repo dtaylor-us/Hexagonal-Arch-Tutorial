@@ -5,6 +5,8 @@ import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import us.dtaylor.todoservice.domain.User;
+import us.dtaylor.todoservice.domain.exceptions.UserNotFoundException;
 import us.dtaylor.todoservice.domain.repository.TodoRepository;
 import us.dtaylor.todoservice.domain.Todo;
 
@@ -22,13 +24,16 @@ public class DomainTodoService implements TodoService {
     }
 
     @Override
-    public Mono<Todo> createTodo(UUID userId, Todo todo) {
-        return userService.getUserById(userId)
-                .flatMap(user -> {
-                    todo.setUserId(user.getId())
-                        .setId(UUID.randomUUID());
-                    return repository.save(todo);
-                });
+    public Mono<Todo> createTodo(Todo todo) {
+        return userService.getUserById(todo.getUserId())
+                .switchIfEmpty(Mono.error(new UserNotFoundException("User not found")))
+                .flatMap(user -> saveTodoWithUser(todo, user));
+    }
+
+    private Mono<Todo> saveTodoWithUser(Todo todo, User user) {
+        todo.setUserId(user.getId())
+                .setId(UUID.randomUUID());
+        return repository.save(todo);
     }
 
 

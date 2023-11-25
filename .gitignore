@@ -1,3 +1,4 @@
 .idea
 ./todo-service/.idea
 ./todo-service/
+!/user-management/user-service/gradle.properties

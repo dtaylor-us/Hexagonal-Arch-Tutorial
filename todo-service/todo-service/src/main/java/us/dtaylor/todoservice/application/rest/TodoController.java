@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import us.dtaylor.todoservice.application.rest.request.CreateTodoRequest;
 import us.dtaylor.todoservice.domain.Todo;
 import us.dtaylor.todoservice.domain.service.TodoService;
 
@@ -28,9 +29,9 @@ public class TodoController {
         this.todoService = todoService;
     }
 
-    @PostMapping("/{userId}")
-    public Mono<ResponseEntity<Todo>> createTodo(@PathVariable UUID userId, @RequestBody Todo todo) {
-        return todoService.createTodo(userId, todo)
+    @PostMapping()
+    public Mono<ResponseEntity<Todo>> createTodo(@RequestBody CreateTodoRequest request) {
+        return todoService.createTodo(getTodo(request))
                 .map(ResponseEntity::ok);
     }
 
@@ -41,26 +42,34 @@ public class TodoController {
     }
 
     @GetMapping("/{id}")
-    public Mono<ResponseEntity<Todo>> findById(@PathVariable UUID id) {
-        return todoService.getTodoById(id)
+    public Mono<ResponseEntity<Todo>> findById(@PathVariable String id) {
+        return todoService.getTodoById(UUID.fromString(id))
                 .map(ResponseEntity::ok);
     }
 
     @GetMapping("/user/{userId}")
-    public Mono<ResponseEntity<Flux<Todo>>> getAllTodosByUserId(@PathVariable UUID userId) {
-        Flux<Todo> todoFlux = todoService.getAllTodosByUserId(userId);
+    public Mono<ResponseEntity<Flux<Todo>>> getAllTodosByUserId(@PathVariable String userId) {
+        Flux<Todo> todoFlux = todoService.getAllTodosByUserId(UUID.fromString(userId));
         return Mono.just(ResponseEntity.ok().body(todoFlux));
     }
 
     @PutMapping("/{id}")
-    public Mono<ResponseEntity<Todo>> updateById(@PathVariable UUID id, @RequestBody Todo todo) {
-        return todoService.updateTodo(id, todo)
+    public Mono<ResponseEntity<Todo>> updateById(@PathVariable String id, @RequestBody Todo todo) {
+        return todoService.updateTodo(UUID.fromString(id), todo)
                 .map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
-    public Mono<ResponseEntity<Void>> deleteById(@PathVariable UUID id) {
-        return todoService.deleteTodo(id).then(Mono.just(ResponseEntity.ok().build()));
+    public Mono<ResponseEntity<Void>> deleteById(@PathVariable String id) {
+        return todoService.deleteTodo(UUID.fromString(id)).then(Mono.just(ResponseEntity.ok().build()));
+    }
+
+    private static Todo getTodo(CreateTodoRequest request) {
+        return new Todo()
+                .setDescription(request.description())
+                .setCompleted(request.completed())
+                .setTitle(request.title())
+                .setUserId(UUID.fromString(request.userId()));
     }
 }

@@ -11,21 +11,23 @@ public class TodoDocument {
     @Id
     private String id;
 
-    private final String title;
-    private final String description;
-    private final boolean completed;
-    private final String userId;
+    private String title;
+    private String description;
+    private boolean completed;
+    private String userId;
 
-    public TodoDocument(Todo todo) {
+    public static TodoDocument toDocument(Todo todo) {
+        TodoDocument todoDocument = new TodoDocument();
         if (todo.getId() == null) {
-            this.id = UUID.randomUUID().toString();
+            todoDocument.id = UUID.randomUUID().toString();
         } else {
-            this.id = todo.getId().toString();
+            todoDocument.id = todo.getId().toString();
         }
-        this.title = todo.getTitle();
-        this.description = todo.getDescription();
-        this.completed = todo.isCompleted();
-        this.userId = todo.getUserId().toString();
+        todoDocument.title = todo.getTitle();
+        todoDocument.description = todo.getDescription();
+        todoDocument.completed = todo.isCompleted();
+        todoDocument.userId = todo.getUserId().toString();
+        return todoDocument;
     }
 
     public Todo toDomain() {

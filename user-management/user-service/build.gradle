@@ -7,7 +7,11 @@ plugins {
 }
 
 group = 'us.dtaylor'
-version = '0.0.1-SNAPSHOT'
+version = '0.0.2-SNAPSHOT'
+
+springBoot {
+	buildInfo() // Generates build-info.properties
+}
 
 java {
 	sourceCompatibility = '17'
@@ -46,6 +50,8 @@ dependencies {
 
 tasks.named('bootBuildImage') {
 	builder = 'paketobuildpacks/builder-jammy-base:latest'
+	imageName = "derektaylor/hexagonal-arch:${project.name}-${project.version}"
+	publish = true
 }
 
 tasks.named('test') {

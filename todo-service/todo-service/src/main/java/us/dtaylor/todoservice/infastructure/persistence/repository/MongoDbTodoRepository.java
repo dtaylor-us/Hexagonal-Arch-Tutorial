@@ -31,7 +31,7 @@ public class MongoDbTodoRepository implements TodoRepository {
 
     @Override
     public Mono<Todo> save(Todo todo) {
-        return repository.save(new TodoDocument(todo))
+        return repository.save(TodoDocument.toDocument(todo))
                 .map(TodoDocument::toDomain);
     }
 

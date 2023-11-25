@@ -1,9 +1,11 @@
 version: '3.8'
 services:
   todo-service:
-    build:
-      context: ./todo-service/todo-service
-      dockerfile: docker/Dockerfile
+    image: derektaylor/hexagonal-arch:todo-service-0.0.2-SNAPSHOT
+    pull_policy: always
+    #    build:
+#      context: ./todo-service/todo-service
+#      dockerfile: docker/Dockerfile
     ports:
       - "8080:8080"
     environment:
@@ -19,9 +21,13 @@ services:
       - kafka
 
   user-service:
-    build:
-      context: ./user-management/user-service
-      dockerfile: docker/Dockerfile
+    image: derektaylor/hexagonal-arch:user-service-0.0.2-SNAPSHOT
+    pull_policy: always
+
+
+    #    build:
+#      context: ./user-management/user-service
+#      dockerfile: docker/Dockerfile
     ports:
       - "8085:8085"
     environment:

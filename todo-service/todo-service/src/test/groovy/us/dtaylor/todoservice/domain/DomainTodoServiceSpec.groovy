@@ -40,7 +40,7 @@ class DomainTodoServiceSpec extends Specification {
         todoRepository.save(todo) >> Mono.just(todo)
 
         then:
-        StepVerifier.create(todoService.createTodo(USER_ID, todo))
+        StepVerifier.create(todoService.createTodo(todo))
                 .expectNextMatches {
                     it.title == "Test" && it.getUserId() == USER_ID
                 }

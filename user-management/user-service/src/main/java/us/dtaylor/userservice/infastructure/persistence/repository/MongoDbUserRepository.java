@@ -1,9 +1,7 @@
 package us.dtaylor.userservice.infastructure.persistence.repository;
 
 import org.springframework.context.annotation.Primary;
-import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import us.dtaylor.userservice.domain.User;
@@ -29,7 +27,7 @@ public class MongoDbUserRepository implements UserRepository {
 
     @Override
     public Mono<User> save(User user) {
-        return repository.save(new UserDocument(user))
+        return repository.save(UserDocument.toDocument(user))
                 .map(UserDocument::toDomain);
     }
 
@@ -47,6 +45,6 @@ public class MongoDbUserRepository implements UserRepository {
 
     @Override
     public Mono<Void> delete(User user) {
-        return repository.delete(new UserDocument(user));
+        return repository.delete(UserDocument.toDocument(user));
     }
 }

@@ -163,7 +163,7 @@ class TodoControllerIntegrationSpec extends Specification {
         )
 
         when: "createTodo endpoint is called"
-        def response = webTestClient.post().uri("/api/v1/todos/{userId}", USER_ID)
+        def response = webTestClient.post().uri("/api/v1/todos")
                 .accept(MediaType.APPLICATION_JSON)
                 .bodyValue(todo1)
                 .exchange()

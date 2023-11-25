@@ -12,17 +12,26 @@ public class UserDocument {
     @Id
     private String id;
 
-    private final String name;
-    private final String email;
+    private String name;
+    private String email;
 
-    public UserDocument(User user) {
+    public static UserDocument toDocument(User user) {
+        UserDocument userDocument = new UserDocument();
+
         if (user.getId() == null) {
-            this.id = UUID.randomUUID().toString();
+            userDocument.id = UUID.randomUUID().toString();
         } else {
-            this.id = user.getId().toString();
+            userDocument.id = user.getId().toString();
         }
-        this.name = user.getName();
-        this.email = user.getEmail();
+
+        if (user.getId() == null) {
+            userDocument.id = UUID.randomUUID().toString();
+        } else {
+            userDocument.id = user.getId().toString();
+        }
+        userDocument.name = user.getName();
+        userDocument.email = user.getEmail();
+        return userDocument;
     }
 
     public User toDomain() {
