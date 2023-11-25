@@ -21,6 +21,7 @@ import spock.lang.Shared
 import spock.lang.Specification
 import us.dtaylor.todoservice.domain.Todo
 import us.dtaylor.todoservice.domain.User
+import us.dtaylor.todoservice.infastructure.persistence.TodoDocument
 
 @EnableSharedInjection
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -53,7 +54,7 @@ class TodoControllerIntegrationSpec extends Specification {
             .withEnv("MONGO_INITDB_ROOT_PASSWORD", "dasspassword");
 
     // User Service container
-    static GenericContainer userServiceContainer = new GenericContainer(DockerImageName.parse("hexogonal_arch_tutorial_user-service:latest"))
+    static GenericContainer userServiceContainer = new GenericContainer(DockerImageName.parse("derektaylor/hexagonal-arch:user-service-0.0.2-SNAPSHOT"))
             .withNetwork(network)
             .withNetworkAliases("user-service")
             .withExposedPorts(8085)
@@ -96,7 +97,7 @@ class TodoControllerIntegrationSpec extends Specification {
         // Seed the database
         Todo seed_todo = getTodo(DEFAULT_TITLE)
         seed_todo.setId(TODO_ID)
-        Mono<Void> insertMono = reactiveMongoTemplate.insert(seed_todo).then()
+        Mono<Void> insertMono = reactiveMongoTemplate.insert(TodoDocument.toDocument(seed_todo)).then()
 
         StepVerifier.create(insertMono)
                 .expectComplete()
@@ -124,7 +125,7 @@ class TodoControllerIntegrationSpec extends Specification {
         def id = UUID.randomUUID()
         todo.setId(id)
 
-        Mono<Void> insertMono = reactiveMongoTemplate.insert(todo).then()
+        Mono<Void> insertMono = reactiveMongoTemplate.insert(TodoDocument.toDocument(todo)).then()
 
         StepVerifier.create(insertMono)
                 .expectComplete()
