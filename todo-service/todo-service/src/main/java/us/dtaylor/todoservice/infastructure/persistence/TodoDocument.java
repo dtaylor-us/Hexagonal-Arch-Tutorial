@@ -2,10 +2,12 @@ package us.dtaylor.todoservice.infastructure.persistence;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import us.dtaylor.todoservice.domain.Todo;
 
+import java.util.Date;
 import java.util.UUID;
 
 @Data
@@ -18,6 +20,9 @@ public class TodoDocument {
     private String description;
     private boolean completed;
     private String userId;
+
+    @CreatedDate
+    private Date createdDate;
 
     public static TodoDocument toDocument(Todo todo) {
         TodoDocument todoDocument = new TodoDocument();
