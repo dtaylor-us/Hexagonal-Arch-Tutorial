@@ -51,4 +51,10 @@ public class DomainUserService implements UserService {
         return userRepository.findById(id)
                 .flatMap(userRepository::delete);
     }
+
+    @Override
+    public Mono<User> findByUsername(String username) {
+        return userRepository.findByUserName(username)
+                .switchIfEmpty(Mono.error(new ChangeSetPersister.NotFoundException()));
+    }
 }

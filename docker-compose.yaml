@@ -91,6 +91,20 @@ services:
       - app-network
       - kafka
 
+  auth:
+    image: quay.io/keycloak/keycloak
+    ports:
+      - "8484:8080"
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    command:
+      - start-dev
+
+#      - --import-realm
+#    volumes:
+#      - /home/keycloak/realm.json:/opt/keycloak/data/import/realm.json
+
 networks:
   app-network:
     driver: bridge

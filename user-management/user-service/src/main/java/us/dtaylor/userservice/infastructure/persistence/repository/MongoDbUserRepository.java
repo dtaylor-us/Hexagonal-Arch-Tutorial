@@ -47,4 +47,9 @@ public class MongoDbUserRepository implements UserRepository {
     public Mono<Void> delete(User user) {
         return repository.delete(UserDocument.toDocument(user));
     }
+
+    @Override
+    public Mono<User> findByUserName(String username) {
+        return repository.findByName(username).map(UserDocument::toDomain);
+    }
 }

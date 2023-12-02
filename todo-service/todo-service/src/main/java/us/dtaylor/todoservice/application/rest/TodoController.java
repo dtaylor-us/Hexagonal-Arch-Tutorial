@@ -2,6 +2,7 @@ package us.dtaylor.todoservice.application.rest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,6 +38,7 @@ public class TodoController {
                 .map(ResponseEntity::ok);
     }
 
+    @PreAuthorize("hasRole('APP-ADMIN')")
     @GetMapping
     public Mono<ResponseEntity<Flux<Todo>>> getAllTodos() {
         Flux<Todo> todoFlux = todoService.getAllTodos();

@@ -17,4 +17,6 @@ public interface UserRepository {
     Mono<User> findById(UUID id);
 
     Mono<Void> delete(User user);
+
+    Mono<User> findByUserName(String username);
 }

@@ -1,33 +1,37 @@
 <div class="flex flex-column align-items-center justify-content-center mt-6">
   <p-card header="Todo" class="w-6">
-    <div class="m-2 flex">
-      <div>
-        <input type="text" pInputText
-          [(ngModel)]="task"
-          placeholder="Enter new todo"
-          #todoTask="ngModel"
-          required
-        />
-      </div>
-      <p-button
-        icon="pi pi-check"
-        class="ml-1"
-        (onClick)="addTodo()"
-        [disabled]="!!todoTask.invalid"
-      ></p-button>
+    <div class="m-2  w-full">
+
+      <form [formGroup]="todoForm" (ngSubmit)="addTodo()">
+        <input type="text"
+               class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+               formControlName="title" pInputText placeholder="Title">
+        <textarea formControlName="description"
+                  class="text-base text-color surface-overlay p-2 mt-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+                  pInputTextarea placeholder="Description"></textarea>
+        <div class="field flex mt-2">
+          <button type="submit" class="w-full" icon="pi pi-check"
+                  pButton label="Add Todo" [disabled]="!todoForm.valid"></button>
+        </div>
+
+      </form>
+
     </div>
+    <p-divider></p-divider>
     <p class="m-0">
       <p-table [value]="todos">
         <ng-template pTemplate="header">
           <tr>
-            <th width="60%">Task</th>
-            <th>Completed</th>
-            <th width="5%"></th>
+            <th class="w-4">Task</th>
+            <th class="w-6">Description</th>
+            <th class="w-1">Completed</th>
+            <th class="w-1"></th>
           </tr>
         </ng-template>
         <ng-template pTemplate="body" let-todo>
           <tr>
             <td>{{ todo.title }}</td>
+            <td>{{ todo.description }}</td>
             <td>
               <p-checkbox
                 [(ngModel)]="todo.completed"
